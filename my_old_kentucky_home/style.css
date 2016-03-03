@@ -1,0 +1,14 @@
+body{
+	background-color: orange;
+}
+
+h1{
+	color:green;
+	text-align: center;
+}
+
+video{
+	display:block;
+	margin:0 auto;
+
+}
