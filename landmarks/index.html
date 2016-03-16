@@ -10,43 +10,15 @@
 		<link rel="stylesheet" href="style.css" />
 		
 		<script>
-
-			var http = new XMLHttpRequest();
-			http.open("Post", "https://defense-in-derpth.herokuapp.com/sendLocation", true);
-
-			var options = {
-  			enableHighAccuracy: true,
-  			timeout: 5000,
-  			maximumAge: 0
-			};
-
-			function success(pos) {
- 			 var crd = pos.coords;
-
-			  console.log('Your current position is:');
-			  console.log('Latitude : ' + crd.latitude);
-			  console.log('Longitude: ' + crd.longitude);
-			  console.log('More or less ' + crd.accuracy + ' meters.');
-				};
-
-				function error(err) {
- 				 console.warn('ERROR(' + err.code + '): ' + err.message);
-				};
-
-				navigator.geolocation.getCurrentPosition(success, error, options);
-
-
-			var geo = navigator.geolocation.getCurrentPosition(foundlocation, nolocation);
-			var Lat = geo.latitude;
-			var Lng = geo.longitude;
-			console.log(geo);console.log(Lng);
-			http.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-			http.send("login=SUNG_KRAMER&lat=Lat&lng=Lng");
+			
 
 
 			var myLat = 0;
 			var myLng = 0;
 			var request = new XMLHttpRequest();
+			
+
+			
 			var me = new google.maps.LatLng(myLat, myLng);
 			var myOptions = {
 						zoom: 15, // The larger the zoom number, the bigger the zoom
@@ -61,6 +33,7 @@
 			{
 				map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
 				getMyLocation();
+
 			}
 			
 			function getMyLocation() {
@@ -80,7 +53,6 @@
 			{
 				me = new google.maps.LatLng(myLat, myLng);
 				
-				// Update map and go there...
 				map.panTo(me);
 	
 				// Create a marker
@@ -94,8 +66,24 @@
 				google.maps.event.addListener(marker, 'click', function() {
 					infowindow.setContent(marker.title);
 					infowindow.open(map, marker);
+
 				});
+				
 			}
+
+			request.open("POST", "https://defense-in-derpth.herokuapp.com/sendLocation", true);
+			request.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+			request.send("login=SUNG_KRAMER&lat="+myLat+"&lng="+myLng);
+			var text;
+			request.onreadystatechange = function(){
+			if (request.readyState == 4 && request.status == 200) {
+    			text = JSON.parse(request.responseText);
+			console.log(text);
+  				}				
+			}
+
+		
+
 		</script>
 	</head>
 	
