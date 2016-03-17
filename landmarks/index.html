@@ -18,6 +18,8 @@
 			var request = new XMLHttpRequest();
 			var text;
 			var image = 'icon.jpg';
+			var star = 'home.jpg';
+			var lndmk = 'tree.jpg';
 			Distance = 0;
 			
 			var me = new google.maps.LatLng(0,0);
@@ -43,7 +45,7 @@
      			    Math.cos(L1) * Math.cos(L2) *
 			        Math.sin(DT/2) * Math.sin(DT/2);
 			    	var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-					return R * c;
+					return R * c*.000621371; // Convert meters to miles
 
 			}
 			
@@ -62,7 +64,6 @@
 						request.open("POST", "https://defense-in-derpth.herokuapp.com/sendLocation", true);
 						request.setRequestHeader("Content-type","application/x-www-form-urlencoded");
 						request.send("login=SUNG_KRAMER&lat="+myLat+"&lng="+myLng);
-						renderMap(myLat, myLng, "Home");
 					});
 				}
 			}
@@ -70,42 +71,126 @@
 			function renderMap(Lat, Lng, name)
 			{	
 				me = new google.maps.LatLng(Lat, Lng);
-				if(name == "Home")
-				map.panTo(me);
-	
-				if(name != "Home"){
-					var Distance = findDistance(Lat,Lng);
-				};
-	console.log(Distance)
-				// Create a marker
-				var marker = new google.maps.Marker({
+				
+					map.panTo(me);
+
+					var marker = new google.maps.Marker({
 					position: me,
 					icon: image,
 					title: name,
 
-				});
+					});	
+				
+				
+				if(name != "Home"){
+					var Distance = findDistance(Lat,Lng);
+					contentText = "<p> "+name+" </p> <p>Distance(miles) = " + Distance+"</p>";
+				};
+
+				// Create a marker
+				
 				marker.setMap(map);
-				infowindow = new google.maps.InfoWindow({
-					content: "Distance = " + Distance,	
+				var infowindow = new google.maps.InfoWindow({
+					title: name,
+					content: contentText,	
 
 				});
 				// Open info window on click of marker
 				google.maps.event.addListener(marker, 'click', function() {
-					infowindow.setContent(this.title);
+					infowindow.setContent(Distance);
 					infowindow.open(map, this);
 
 				});
 				
 			}
 			
-
+			lowest = 10000;
+			place = 0;
 			request.onreadystatechange = function(){
 				if (request.readyState == 4 && request.status == 200) {
     			text = JSON.parse(request.responseText);
     			for(i = 0; i < Object.keys(text.people).length; i++ ){
     				renderMap(text.people[i].lat,text.people[i].lng,text.people[i].login)
     			}
+    			for(i = 0; i < Object.keys(text.landmarks).length;i++){
+    				dist = findDistance(text.landmarks[i].geometry.coordinates[1],text.landmarks[i].geometry.coordinates[0])
+    				
+    				if(dist<1)
+    					if(dist < lowest)
+    						{lowest = dist;
+    							place = i;}
+    					updateLand(text.landmarks[i],dist);
+
+    			}
+    			renderMe(myLat,myLng,text.landmarks[place].properties.Location_Name,dist)
+    			drawLine(myLat,myLng,text.landmarks[place].geometry.coordinates)
+
   				}				
+			}
+			function updateLand(landmarks){
+				Lat = landmarks.geometry.coordinates[1];
+				Lng = text.landmarks[i].geometry.coordinates[0];
+				land = new google.maps.LatLng(Lat, Lng);
+				var marker = new google.maps.Marker({
+					position: land,
+					icon: lndmk,
+					title: name,
+
+				});
+
+				marker.setMap(map);
+				var infowindow = new google.maps.InfoWindow({
+					title: landmarks.properties.Location_Name,
+					content: landmarks.properties.Details,	
+
+				});
+
+				google.maps.event.addListener(marker, 'click', function() {
+					infowindow.setContent(landmarks.properties.Details);
+					infowindow.open(map, this);
+
+				});
+
+			}
+
+			function renderMe(lat, lang,list,dist){
+				var home = new google.maps.LatLng(Lat, Lng);
+				var marker = new google.maps.Marker({
+					position: home,
+					icon: star,
+					title: "Logged IN: HOME"
+				});
+
+				marker.setMap(map);
+				contentText = "<p> Closest Landmark: "+list+" </p> <p>Distance(miles) = " + dist+"</p>";
+				var infowindow = new google.maps.InfoWindow({
+					title: "Home: What's Close?",
+					content: contentText
+
+				});
+
+				google.maps.event.addListener(marker, 'click', function() {
+					infowindow.setContent(contentText);
+					infowindow.open(map, this);
+
+				});
+
+
+			}
+			function drawLine(lat,lng,coords){
+				var path = [
+    			{lat: lat, lng: lng},
+    			{lat: coords[1], lng: coords[0]},
+  				];
+  				var walkPath = new google.maps.Polyline({
+  				  path: path,
+    			geodesic: true,
+   				 strokeColor: '#FF0000',
+   				 strokeOpacity: 1.0,
+   				 strokeWeight: 2
+  					});
+
+				walkPath.setMap(map);
 			}
 		
 
