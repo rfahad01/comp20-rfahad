@@ -4,7 +4,7 @@
 <html>
 
 	<head>
-		<title>Geolocation Map Example</title>
+		<title>Stop Googling Me</title>
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 		<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=true"></script>
 		<link rel="stylesheet" href="style.css" />
@@ -13,13 +13,14 @@
 			
 
 
-			var myLat = 0;
-			var myLng = 0;
+		//	myLat = 0;
+		//	myLng = 0;
 			var request = new XMLHttpRequest();
+			var text;
+			var image = 'icon.jpg';
+			Distance = 0;
 			
-
-			
-			var me = new google.maps.LatLng(myLat, myLng);
+			var me = new google.maps.LatLng(0,0);
 			var myOptions = {
 						zoom: 15, // The larger the zoom number, the bigger the zoom
 						center: me,
@@ -27,7 +28,24 @@
 					};
 			var map;
 			var marker;
-			var infowindow = new google.maps.InfoWindow();
+			
+
+			function findDistance(Lat,Lng){
+					
+
+					var R = 6371000; // metres
+					var L1 = myLat*Math.PI/180;
+					var L2 = Lat*Math.PI/180;
+					var DL = (Lat-myLat)*Math.PI/180;
+					var DT = (Lng-myLng)*Math.PI/180;
+
+					var a = Math.sin(DL/2) * Math.sin(DL/2) +
+     			    Math.cos(L1) * Math.cos(L2) *
+			        Math.sin(DT/2) * Math.sin(DT/2);
+			    	var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+					return R * c;
+
+			}
 			
 			function init()
 			{
@@ -37,51 +55,58 @@
 			}
 			
 			function getMyLocation() {
-				if (navigator.geolocation) { // the navigator.geolocation object is supported on your browser
+				if (navigator.geolocation) { 
 					navigator.geolocation.getCurrentPosition(function(position) {
 						myLat = position.coords.latitude;
 						myLng = position.coords.longitude;
-						renderMap();
+						request.open("POST", "https://defense-in-derpth.herokuapp.com/sendLocation", true);
+						request.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+						request.send("login=SUNG_KRAMER&lat="+myLat+"&lng="+myLng);
+						renderMap(myLat, myLng, "Home");
 					});
 				}
-				else {
-					alert("Geolocation is not supported by your web browser.  What a shame!");
-				}
 			}
 
-			function renderMap()
-			{
-				me = new google.maps.LatLng(myLat, myLng);
-				
+			function renderMap(Lat, Lng, name)
+			{	
+				me = new google.maps.LatLng(Lat, Lng);
+				if(name == "Home")
 				map.panTo(me);
 	
+				if(name != "Home"){
+					var Distance = findDistance(Lat,Lng);
+				};
+	console.log(Distance)
 				// Create a marker
-				marker = new google.maps.Marker({
+				var marker = new google.maps.Marker({
 					position: me,
-					title: "Here I Am!"
+					icon: image,
+					title: name,
+
 				});
 				marker.setMap(map);
-					
+				infowindow = new google.maps.InfoWindow({
+					content: "Distance = " + Distance,	
+
+				});
 				// Open info window on click of marker
 				google.maps.event.addListener(marker, 'click', function() {
-					infowindow.setContent(marker.title);
-					infowindow.open(map, marker);
+					infowindow.setContent(this.title);
+					infowindow.open(map, this);
 
 				});
 				
 			}
+			
 
-			request.open("POST", "https://defense-in-derpth.herokuapp.com/sendLocation", true);
-			request.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-			request.send("login=SUNG_KRAMER&lat="+myLat+"&lng="+myLng);
-			var text;
 			request.onreadystatechange = function(){
-			if (request.readyState == 4 && request.status == 200) {
+				if (request.readyState == 4 && request.status == 200) {
     			text = JSON.parse(request.responseText);
-			console.log(text);
+    			for(i = 0; i < Object.keys(text.people).length; i++ ){
+    				renderMap(text.people[i].lat,text.people[i].lng,text.people[i].login)
+    			}
   				}				
 			}
-
 		
 
 		</script>
