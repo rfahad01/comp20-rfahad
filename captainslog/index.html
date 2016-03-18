@@ -6,7 +6,26 @@
 	<title>Captain's Log</title>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
 	<script>
-	  // Your work will be done here...
+	  $('div').each(function {
+		localStorage.setItem('phrase', '');
+		elem = document.getElementById("log");
+		elem.innerHTML = "<h1>" + localStorage['phrase'] + "</h1>";
+		})
+	
+	function reload() {
+		elem = document.getElementById("log");
+		output = "";
+		for (key in localStorage) {
+			output = output + "<p>" + localStorage[key] + "</p>\n";
+		}
+		elem.innerHTML = output;
+	}
+	
+	function store() {
+		txt = document.getElementById("something").value;
+		localStorage[new Date().getTime()] = txt;
+		reload();
+	}
 	</script>
 </head>
 
