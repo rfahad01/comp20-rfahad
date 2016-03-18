@@ -7,22 +7,23 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
 	<script>
 	  $('div').each(function {
-		localStorage.setItem('phrase', '');
+		localStorage.setItem('phrase', $('input#msg'));
 		elem = document.getElementById("log");
 		elem.innerHTML = "<h1>" + localStorage['phrase'] + "</h1>";
-		})
+		store();})
+
 	
 	function reload() {
 		elem = document.getElementById("log");
 		output = "";
 		for (key in localStorage) {
-			output = output + "<p>" + localStorage[key] + "</p>\n";
+			output =  "<p>" + localStorage[key] + "</p>\n";
 		}
 		elem.innerHTML = output;
 	}
 	
 	function store() {
-		txt = document.getElementById("something").value;
+		txt = document.getElementById("log").value;
 		localStorage[new Date().getTime()] = txt;
 		reload();
 	}
