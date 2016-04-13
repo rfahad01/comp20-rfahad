@@ -10,7 +10,8 @@
 		localStorage.setItem('phrase', $('input#msg'));
 		elem = document.getElementById("log");
 		elem.innerHTML = "<h1>" + localStorage['phrase'] + "</h1>";
-		store();})
+		store();
+		reload();})
 
 	
 	function reload() {

@@ -61,7 +61,7 @@
 					navigator.geolocation.getCurrentPosition(function(position) {
 						myLat = position.coords.latitude;
 						myLng = position.coords.longitude;
-						request.open("POST", "https://defense-in-derpth.herokuapp.com/sendLocation", true);
+						request.open("POST", "https://cherry-crisp-35270.herokuapp.com", true);
 						request.setRequestHeader("Content-type","application/x-www-form-urlencoded");
 						request.send("login=SUNG_KRAMER&lat="+myLat+"&lng="+myLng);
 					});

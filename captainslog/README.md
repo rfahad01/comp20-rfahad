@@ -5,3 +5,5 @@ I did not have time to complete the assignment as of 11:31 PM. Am scurrying as w
 I will take my 0 or 1 or whatever you deem fit, I deserve it.
 
 Tried following jQuery example online
+
+Worked by myself
