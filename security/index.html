@@ -1,77 +1,77 @@
-
 <!DOCTYPE html>
+
 <html>
-<head>
-    <title>Server for Historic Landmarks Error Report</title>
+    <head>
+        <title>Server for Historic Landmarks Error Report</title>
+    </head>
 
-</head>
-<body>
-<h1>Security Assessment of the Server for Historic Landmarks</h1>
+    <body>
+        <h1>Security Assessment of the Server for Historic Landmarks</h1>
 
-<p>Created by Rihab Fahad</p>
+          <p>Created by Rihab Fahad</p>
 
-<h2>Introduction</h2>
+        <h2>Introduction</h2>
 
-<p>The assignment was to test Lucas Machamer's Server for Historic Landmarks, as developed by him on assignment 3, for security and privacy problems. According to the specifications from assignment 3, the server was to utilize Heroku, Node.js, Express web framework, and MongoDB in order to create "a web application that maintains location check-ins and served the data of landmarks within a mile of where the [user] is." This report outlines three key security and privacy errors that were found, and how they can be fixed.</p>
+            <p>The assignment was to test Lucas Machamer's Server for Historic Landmarks, as developed by him on assignment 3, for security and privacy problems. According to the specifications from assignment 3, the server was to utilize Heroku, Node.js, Express web framework, and MongoDB in order to create "a web application that maintains location check-ins and served the data of landmarks within a mile of where the [user] is." This report outlines three key security and privacy errors that were found, and how they can be fixed.</p>
 
-<h2>Methodology</h2>
+        <h2>Methodology</h2>
 
-<p>Testing was carried out through a black-box and white-box testing. I was first given only the heroku url, and using my knowledge of the assignment, attempted to attack the site using xss and html-injection, as I knew that there was a post command that likely had not been prepared to protect against such attacks. After getting the source code from Lucas Machamer, I discovered a security error in his code that could be exploited. </p>
+            <p>Testing was carried out through a black-box and white-box testing. I was first given only the heroku url, and using my knowledge of the assignment, attempted to attack the site using xss and html-injection, as I knew that there was a post command that likely had not been prepared to protect against such attacks. After getting the source code from Lucas Machamer, I discovered a security error in his code that could be exploited. </p>
 
-<h2>Abstract of Findings</h2>
+        <h2>Abstract of Findings</h2>
 
-<p>The security issues found are mostly based off the server not checking if the user's input is valid/possibly malicious. There were two instances where the user could input text that acted as code when displayed by the server. As well, there was a particular instance where the site uploaded data to the MongoDB server even though the input data was not complete. This could easily be exploited in many instances in order to upload code that just inherently hides on Mongo to be later called. </p>
+            <p>The security issues found are mostly based off the server not checking if the user's input is valid/possibly malicious. There were two instances where the user could input text that acted as code when displayed by the server. As well, there was a particular instance where the site uploaded data to the MongoDB server even though the input data was not complete. This could easily be exploited in many instances in order to upload code that just inherently hides on Mongo to be later called. </p>
 
-<h2>Issues Found</h2>
+        <h2>Issues Found</h2>
 
-<ol>
-<li><strong>Cross-Site Scripting</strong>
+            <ol>
+                <li><strong>Cross-Site Scripting</strong>
 
-<ul>
-<li>Affects POST API (/sendLocation)</li>
-<li>Severity: High: If a script can be added to the database, which is then displayed on the homepage, a malicious user can inject any sort of script and affect all users of the server. While the script I injected was a simple alert, more complex scripts could phish users or break the website itself, for example.</li>
+                <ul>
+                    <li>Affects POST API (/sendLocation)</li>
+                    <li>Severity: High: If a script can be added to the database, which is then displayed on the homepage, a malicious user can inject any sort of script and affect all users of the server. While the script I injected was a simple alert, more complex scripts could phish users or break the website itself, for example.</li>
 
-<li>Description: I found this problem by submitting curl data with a script attached to the "login" portion of the query. 
-   <p> <img src = "xssscript.jpg" alt = "Curl for submitting script" height = "300" width = "720"title = "XSS submission" /></p>
-</li>
-<li>Proof: The following is a popup when accessing the website:</code>.
-<p> <img src = "attacked.jpg" alt = "After the attack" height = "300" width = "720"title = "After the attack" /></p></li>
-<li>Resolution: An easy fix for this problem would be to check all user input for such scripts and on-the-fly convert any "<" or other html indicators to their stringified versions, so any code that is inserted into the database would not be able to be run.</li>
+                    <li>Description: I found this problem by submitting curl data with a script attached to the "login" portion of the query. I knew that most people doing assignment 3 would not protect against an xss attack, so this was easy to exploit.
+                        <p> <img src = "xssscript.jpg" alt = "Curl for submitting script" height = "300" width = "720"title = "XSS submission" /></p>
+                    </li>
+                    <li>Proof: The following is a popup when accessing the website:</code>.
+                        <p> <img src = "attacked.jpg" alt = "After the attack" height = "300" width = "720"title = "After the attack" /></p></li>
+                    <li>Resolution: An easy fix for this problem would be to check all user input for such scripts and on-the-fly convert any "<" or other html indicators to their stringified versions, so any code that is inserted into the database would not be able to be run.</li>
 
-</ul></li>
-<li><strong>HTML Injection into POST API</strong>
+                </ul></li>
 
-<ul>
-<li>Affects POST API (/sendLocation)</li>
-<li>Severity: High: :</li>
-<li>Description: 
+                <li><strong>HTML Injection into POST API</strong>
 
-<p> <img src = "htmlinjection.jpg" alt = "Curl for submitting html" height = "300" width = "720"title = "html submission" /></p></li>
-<li>Proof: 
+                <ul>
+                    <li>Affects POST API (/sendLocation)</li>
+                    <li>Severity: High: This is the same as xss, however it can affect all users. Since the homepage displays the login and other credentials of all users, the html could modify the homepage in such a way that it disrupts the entire server.</li>
+                    <li>Description: This follows the same reasoning as the previous error. While this is similar to an xss attack, this is based entirely off of other html code, not just scripts.
 
-<p> <img src = "bold.jpg" alt = "Affected Page" height = "300" width = "720"title = "Aftermath" /></p></li>
-<li>Resolution: As noted above, an easy fix for this problem would be to check all user input for such scripts and on-the-fly convert any "<" or other html indicators to their stringified versions, so any code that is inserted into the database would not be able to be run.
+                        <p> <img src = "htmlinjection.jpg" alt = "Curl for submitting html" height = "300" width = "720"title = "html submission" /></p></li>
+                    <li>Proof: The following shows how the page is changed when submitting the previous code. As you can see, multiple instances of injected html were used in order to test the security issue.
 
-</li>
-</ul></li>
-<li><p><strong>Null Addition to Database</strong></p>
+                        <p> <img src = "bold.jpg" alt = "Affected Page" height = "300" width = "720"title = "Aftermath" /></p></li>
+                    <li>Resolution: As noted above, an easy fix for this problem would be to check all user input for such scripts and on-the-fly convert any "<" or other html indicators to their stringified versions, so any code that is inserted into the database would not be able to be run. 
 
-<ul>
-<li>Affects POST API (/sendLocation)</li>
-<li>Severity: High: : </li>
-<li>Description: 
+                    </li>
+                </ul></li>
 
-<p> <img src = "null.jpg" alt = "Curl for submitting no login" height = "300" width = "720"title = "no login" /></p></li>
-<li>Proof: 
+                <li><p><strong>Null Addition to Database</strong></p>
 
-<p> <img src = "nullpage.jpg" alt = "null in db" height = "300" width = "720"title = "Afterwards" /></p></li>
-<li>Resolution
+                <ul>
+                    <li>Affects POST API (/sendLocation)</li>
+                    <li>Severity: Medium: This is more an issue of the creator not following the specifications of project 3. If all three inputs to sendLocation were not found, then an error was to be returned without the inputs being added to the database. However, this could potentially be a huge issue as unauthorized or incomplete data could be added to the database, and when displaying it on the front-end of the system, incorrect information would be displayed. </li>
+                    <li>Description: This error was found when looking through the source code. I noticed that while the error message is still spit out, the null user is first added to the database, so I tested it.
 
-</li>
-</ul></li>
+                        <p> <img src = "null.jpg" alt = "Curl for submitting no login" height = "300" width = "720"title = "no login" /></p></li>
+                    <li>Proof: Highlighted null entry:
 
-<h2>Conclusion</h2>
+                    <p> <img src = "nullpage.jpg" alt = "null in db" height = "300" width = "720"title = "Afterwards" /></p></li>
+                    <li>Resolution: In order to fix this error, there should be an if statement checking to see if all three fields are submitted before the main db.insert() is called.
+                    </li>
+                </ul></li>
 
-<p></p>
-</body>
+        <h2>Conclusion</h2>           
+            <p>Issues with the server make it easy for malicious users to modify and insert html code/scripts that change the server for all users. As well, the database is not managed well enough, so data that should be rejected is added to the database. These are all relatively easy but pesky problems to solve, but I believe in Lucas. God bless America.</p>
+    </body>
 </html>
