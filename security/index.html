@@ -25,18 +25,18 @@
 <h2>Issues Found</h2>
 
 <ol>
-<li><strong>Cross-Cross-Site Scripting</strong>
+<li><strong>Cross-Site Scripting</strong>
 
 <ul>
 <li>Affects POST API (/sendLocation)</li>
-<li>Severity: High: When</li>
+<li>Severity: High: If a script can be added to the database, which is then displayed on the homepage, a malicious user can inject any sort of script and affect all users of the server. While the script I injected was a simple alert, more complex scripts could phish users or break the website itself, for example.</li>
 
-<li>Description: 
+<li>Description: I found this problem by submitting curl data with a script attached to the "login" portion of the query. 
    <p> <img src = "xssscript.jpg" alt = "Curl for submitting script" height = "300" width = "720"title = "XSS submission" /></p>
 </li>
-<li>Proof: </code>.
+<li>Proof: The following is a popup when accessing the website:</code>.
 <p> <img src = "attacked.jpg" alt = "After the attack" height = "300" width = "720"title = "After the attack" /></p></li>
-<li>Resolution: </li>
+<li>Resolution: An easy fix for this problem would be to check all user input for such scripts and on-the-fly convert any "<" or other html indicators to their stringified versions, so any code that is inserted into the database would not be able to be run.</li>
 
 </ul></li>
 <li><strong>HTML Injection into POST API</strong>
@@ -50,11 +50,11 @@
 <li>Proof: 
 
 <p> <img src = "bold.jpg" alt = "Affected Page" height = "300" width = "720"title = "Aftermath" /></p></li>
-<li>Resolution: 
+<li>Resolution: As noted above, an easy fix for this problem would be to check all user input for such scripts and on-the-fly convert any "<" or other html indicators to their stringified versions, so any code that is inserted into the database would not be able to be run.
 
 </li>
 </ul></li>
-<li><p><strong>Injection of additional database fields</strong></p>
+<li><p><strong>Null Addition to Database</strong></p>
 
 <ul>
 <li>Affects POST API (/sendLocation)</li>
@@ -65,7 +65,7 @@
 <li>Proof: 
 
 <p> <img src = "nullpage.jpg" alt = "null in db" height = "300" width = "720"title = "Afterwards" /></p></li>
-<li>
+<li>Resolution
 
 </li>
 </ul></li>
